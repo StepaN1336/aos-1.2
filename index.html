@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Графік Pобс від n</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+
+<body>
+    <canvas id="chart" width="800" height="400"></canvas>
+    <script>
+        const lambda = 40;
+        const Tobs = 25 * Math.pow(10, -2);
+        const a = lambda * Tobs;
+
+
+        function fact(num) {
+            if (num === 0 || num === 1) return 1;
+            return num * fact(num - 1);
+        }
+
+
+        const dataN = [];
+        const dataPobs = [];
+        let specialPoint = null;
+
+
+        for (let n = 9; n <= 20; n++) {
+            let sum = 0;
+            for (let i = 0; i <= n; i++) {
+                sum += Math.pow(a, i) / fact(i);
+            }
+
+
+            const P0 = 1 / sum;
+            const Pn = (Math.pow(a, n) / fact(n)) * P0;
+            const Pobs = 1 - Pn;
+
+
+            dataN.push(n);
+            dataPobs.push(Pobs);
+
+
+            if (specialPoint === null && Pobs >= 0.978) {
+                specialPoint = { n, Pobs };
+            }
+        }
+
+
+        const ctx = document.getElementById('chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dataN,
+                datasets: [
+                    {
+                        label: 'Pобс залежно від n',
+                        data: dataPobs,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                    },
+                    {
+                        label: 'Pобс ≥ 0.978',
+                        data: specialPoint ? [{ x: specialPoint.n, y: specialPoint.Pobs }] : [],
+                        backgroundColor: 'red',
+                        pointStyle: 'circle',
+                        pointRadius: 6,
+                        showLine: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'n',
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Pобс',
+                        },
+                        min: 0,
+                        max: 1,
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+
+</html>
